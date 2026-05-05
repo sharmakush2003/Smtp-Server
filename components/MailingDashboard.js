@@ -27,6 +27,7 @@ export default function MailingDashboard() {
   const [smtpConfig, setSmtpConfig] = useState({ host: 'smtp.gmail.com', port: 465, user: '', pass: '', secure: true });
   const [isMounted, setIsMounted] = useState(false);
   const [notification, setNotification] = useState(null); // { type, title, message }
+  const [showInstructions, setShowInstructions] = useState(false);
 
   // Load from LocalStorage ONLY on client mount
   useEffect(() => {
@@ -565,129 +566,214 @@ export default function MailingDashboard() {
           >
             <motion.div 
               initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }}
-              className="glass-card" 
-              style={{ width: '100%', maxWidth: '450px', padding: '2.5rem', border: '1px solid var(--primary)' }}
+              className="glass-card custom-scrollbar" 
+              style={{ 
+                width: '95%', 
+                maxWidth: '450px', 
+                maxHeight: '90vh', 
+                padding: '2rem', 
+                border: '1px solid var(--primary)', 
+                overflowY: 'auto',
+                position: 'relative'
+              }}
             >
+              {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <div>
-                  <h2 style={{ fontSize: '1.25rem', fontWeight: '900', letterSpacing: '0.05em' }}>SERVER SETTINGS</h2>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '700', marginTop: '0.2rem' }}>CONFIGURE YOUR OUTGOING MAIL SERVER</div>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: '900', letterSpacing: '0.05em' }}>{showInstructions ? 'SETUP GUIDE' : 'SERVER SETTINGS'}</h2>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '700', marginTop: '0.2rem' }}>
+                    {showInstructions 
+                      ? `HOW TO GET YOUR ${smtpConfig.host === 'smtp.gmail.com' ? 'GMAIL' : smtpConfig.host === 'smtp-mail.outlook.com' ? 'OUTLOOK' : 'ZOHO'} KEY` 
+                      : 'CONFIGURE YOUR OUTGOING MAIL SERVER'}
+                  </div>
                 </div>
-                <button onClick={() => setShowConfig(false)} style={{ background: 'none', color: 'var(--muted)' }}><X size={24} /></button>
-              </div>
-              
-              {/* Presets */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.75rem' }}>QUICK PRESETS</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {[
-                    { name: 'Gmail', host: 'smtp.gmail.com', port: 465 },
-                    { name: 'Outlook', host: 'smtp-mail.outlook.com', port: 587 },
-                    { name: 'Zoho', host: 'smtp.zoho.com', port: 465 },
-                    { name: 'Other', host: '', port: 465 }
-                  ].map(p => (
-                    <button 
-                      key={p.name}
-                      onClick={() => setSmtpConfig({ ...smtpConfig, host: p.host, port: p.port })}
-                      style={{ 
-                        flex: 1, padding: '0.5rem', background: smtpConfig.host === p.host ? 'var(--primary)' : 'rgba(255,255,255,0.05)', 
-                        color: smtpConfig.host === p.host ? '#000' : '#fff', border: '1px solid var(--border)', borderRadius: '0.25rem', 
-                        fontSize: '0.7rem', fontWeight: '800' 
-                      }}
-                    >
-                      {p.name.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
+                <button onClick={() => { setShowConfig(false); setShowInstructions(false); }} style={{ background: 'none', color: 'var(--muted)' }}><X size={24} /></button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '1rem' }}>
+              {!showInstructions ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {/* Presets */}
                   <div>
-                    <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>SMTP SERVER (e.g., smtp.gmail.com)</label>
-                    <input value={smtpConfig.host} onChange={e => setSmtpConfig({...smtpConfig, host: e.target.value})} style={{ background: '#050505', padding: '0.75rem', fontSize: '0.9rem' }} />
+                    <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.75rem' }}>QUICK PRESETS</label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {[
+                        { name: 'Gmail', host: 'smtp.gmail.com', port: 465 },
+                        { name: 'Outlook', host: 'smtp-mail.outlook.com', port: 587 },
+                        { name: 'Zoho', host: 'smtp.zoho.com', port: 465 }
+                      ].map(p => (
+                        <button 
+                          key={p.name}
+                          onClick={() => setSmtpConfig({ ...smtpConfig, host: p.host, port: p.port })}
+                          style={{ 
+                            flex: 1, padding: '0.5rem', background: smtpConfig.host === p.host ? 'var(--primary)' : 'rgba(255,255,255,0.05)', 
+                            color: smtpConfig.host === p.host ? '#000' : '#fff', border: '1px solid var(--border)', borderRadius: '0.25rem', 
+                            fontSize: '0.7rem', fontWeight: '800' 
+                          }}
+                        >
+                          {p.name.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>PORT</label>
-                    <input type="number" value={smtpConfig.port} onChange={e => setSmtpConfig({...smtpConfig, port: parseInt(e.target.value)})} style={{ background: '#050505', padding: '0.75rem', fontSize: '0.9rem' }} />
-                  </div>
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>SENDER EMAIL ADDRESS</label>
-                  <input value={smtpConfig.user} onChange={e => setSmtpConfig({...smtpConfig, user: e.target.value})} style={{ background: '#050505', padding: '0.75rem', fontSize: '0.9rem' }} placeholder="yourname@domain.com" />
-                </div>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800' }}>APP PASSWORD (NOT LOGIN PASS)</label>
-                    <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.6rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: '700' }}>GET KEY →</a>
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <input 
-                      type={showPass ? "text" : "password"} 
-                      value={smtpConfig.pass} 
-                      onChange={e => setSmtpConfig({...smtpConfig, pass: e.target.value})} 
-                      style={{ background: '#050505', padding: '0.75rem', paddingRight: '2.5rem', fontSize: '0.9rem', width: '100%' }} 
-                      placeholder="xxxx xxxx xxxx xxxx" 
-                    />
-                    <button 
-                      onClick={() => setShowPass(!showPass)}
-                      style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', color: 'var(--muted)', padding: 0 }}
-                    >
-                      {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                  <div style={{ fontSize: '0.55rem', color: 'var(--muted)', marginTop: '0.4rem', fontStyle: 'italic' }}>* Use an "App Password" generated from your account security settings.</div>
-                </div>
 
-                {verifyStep === 'pending_otp' && (
-                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ border: '1px solid var(--primary)', padding: '1.25rem', borderRadius: '0.5rem', background: 'rgba(0, 242, 255, 0.05)', textAlign: 'center' }}>
-                    <label style={{ fontSize: '0.65rem', color: 'var(--primary)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>ENTER VERIFICATION CODE SENT TO EMAIL</label>
-                    <input 
-                      value={userOtp} 
-                      onChange={e => setUserOtp(e.target.value)} 
-                      style={{ background: '#000', textAlign: 'center', fontSize: '1.5rem', fontWeight: '900', letterSpacing: '0.5rem', padding: '0.5rem', width: '100%', marginBottom: '1rem' }} 
-                      maxLength={6}
-                      placeholder="000000"
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>SMTP SERVER (e.g., smtp.gmail.com)</label>
+                      <input value={smtpConfig.host} onChange={e => setSmtpConfig({...smtpConfig, host: e.target.value})} style={{ background: '#050505', padding: '0.75rem', fontSize: '0.9rem' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>PORT</label>
+                      <input type="number" value={smtpConfig.port} onChange={e => setSmtpConfig({...smtpConfig, port: parseInt(e.target.value)})} style={{ background: '#050505', padding: '0.75rem', fontSize: '0.9rem' }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>SENDER EMAIL ADDRESS</label>
+                    <input value={smtpConfig.user} onChange={e => setSmtpConfig({...smtpConfig, user: e.target.value})} style={{ background: '#050505', padding: '0.75rem', fontSize: '0.9rem' }} placeholder="yourname@domain.com" />
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <label style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: '800' }}>APP PASSWORD (NOT LOGIN PASS)</label>
+                      {['smtp.gmail.com', 'smtp-mail.outlook.com', 'smtp.zoho.com'].includes(smtpConfig.host) && (
+                        <button 
+                          onClick={() => setShowInstructions(true)}
+                          style={{ background: 'none', color: 'var(--primary)', fontSize: '0.6rem', fontWeight: '800', padding: 0, border: 'none' }}
+                        >
+                          HOW TO GET A KEY? →
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                      <input 
+                        type={showPass ? "text" : "password"} 
+                        value={smtpConfig.pass} 
+                        onChange={e => setSmtpConfig({...smtpConfig, pass: e.target.value})} 
+                        style={{ background: '#050505', padding: '0.75rem', paddingRight: '2.5rem', fontSize: '0.9rem', width: '100%' }} 
+                        placeholder="xxxx xxxx xxxx xxxx" 
+                      />
                       <button 
-                        onClick={requestOtp}
-                        disabled={resendCooldown > 0}
-                        style={{ background: 'none', color: resendCooldown > 0 ? 'var(--muted)' : 'var(--primary)', fontSize: '0.7rem', fontWeight: '800', padding: 0, opacity: resendCooldown > 0 ? 0.5 : 1 }}
+                        onClick={() => setShowPass(!showPass)}
+                        style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', color: 'var(--muted)', padding: 0 }}
                       >
-                        {resendCooldown > 0 ? `RESEND CODE IN ${resendCooldown}S` : 'RESEND CODE'}
+                        {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
-                  </motion.div>
-                )}
+                    <div style={{ fontSize: '0.55rem', color: 'var(--muted)', marginTop: '0.4rem', fontStyle: 'italic' }}>* Use an "App Password" generated from your account security settings.</div>
+                  </div>
 
-                <button 
-                  onClick={verifyStep === 'pending_otp' ? confirmVerification : requestOtp}
-                  disabled={verifyStep === 'sending'}
-                  style={{ 
-                    marginTop: '1rem', background: 'var(--primary)', color: '#000', 
-                    padding: '1.25rem', borderRadius: '0.25rem', fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.1em',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem'
-                  }}
-                >
-                  {verifyStep === 'sending' ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      <span>INITIALIZING VERIFICATION...</span>
-                    </>
-                  ) : verifyStep === 'pending_otp' ? (
-                    <>
-                      <ShieldCheck size={18} />
-                      <span>AUTHORIZE & SECURE</span>
-                    </>
-                  ) : (
-                    <>
-                      <Zap size={18} />
-                      <span>VERIFY & SAVE CONFIG</span>
-                    </>
+                  {verifyStep === 'pending_otp' && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ border: '1px solid var(--primary)', padding: '1.25rem', borderRadius: '0.5rem', background: 'rgba(0, 242, 255, 0.05)', textAlign: 'center' }}>
+                      <label style={{ fontSize: '0.65rem', color: 'var(--primary)', fontWeight: '800', display: 'block', marginBottom: '0.5rem' }}>ENTER VERIFICATION CODE SENT TO EMAIL</label>
+                      <input 
+                        value={userOtp} 
+                        onChange={e => setUserOtp(e.target.value)} 
+                        style={{ background: '#000', textAlign: 'center', fontSize: '1.5rem', fontWeight: '900', letterSpacing: '0.5rem', padding: '0.5rem', width: '100%', marginBottom: '1rem' }} 
+                        maxLength={6}
+                        placeholder="000000"
+                      />
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                        <button 
+                          onClick={requestOtp}
+                          disabled={resendCooldown > 0}
+                          style={{ background: 'none', color: resendCooldown > 0 ? 'var(--muted)' : 'var(--primary)', fontSize: '0.7rem', fontWeight: '800', padding: 0, opacity: resendCooldown > 0 ? 0.5 : 1 }}
+                        >
+                          {resendCooldown > 0 ? `RESEND CODE IN ${resendCooldown}S` : 'RESEND CODE'}
+                        </button>
+                      </div>
+                    </motion.div>
                   )}
-                </button>
-              </div>
+
+                  <button 
+                    onClick={verifyStep === 'pending_otp' ? confirmVerification : requestOtp}
+                    disabled={verifyStep === 'sending'}
+                    style={{ 
+                      marginTop: '1rem', background: 'var(--primary)', color: '#000', 
+                      padding: '1.25rem', borderRadius: '0.25rem', fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.1em',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem'
+                    }}
+                  >
+                    {verifyStep === 'sending' ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        <span>INITIALIZING VERIFICATION...</span>
+                      </>
+                    ) : verifyStep === 'pending_otp' ? (
+                      <>
+                        <ShieldCheck size={18} />
+                        <span>AUTHORIZE & SECURE</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap size={18} />
+                        <span>VERIFY & SAVE CONFIG</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '0.5rem', padding: '1.5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      {smtpConfig.host === 'smtp.gmail.com' && [
+                        'Enable 2-Step Verification in Google Account.',
+                        'Search for "App Passwords" in settings.',
+                        'Select "Mail" and "Other (Custom name)".',
+                        'Generate and copy the 16-character key.'
+                      ].map((step, i) => (
+                        <div key={i} style={{ fontSize: '0.85rem', color: '#fff', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                          <span style={{ background: 'var(--primary)', color: '#000', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', flexShrink: 0, fontSize: '0.7rem' }}>{i+1}</span> 
+                          <span style={{ lineHeight: '1.4' }}>{step}</span>
+                        </div>
+                      ))}
+                      {smtpConfig.host === 'smtp-mail.outlook.com' && [
+                        'Log in to Microsoft Account Security.',
+                        'Go to "Advanced security options".',
+                        'Scroll to "App passwords" section.',
+                        'Click "Create a new app password" & copy.'
+                      ].map((step, i) => (
+                        <div key={i} style={{ fontSize: '0.85rem', color: '#fff', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                          <span style={{ background: 'var(--primary)', color: '#000', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', flexShrink: 0, fontSize: '0.7rem' }}>{i+1}</span> 
+                          <span style={{ lineHeight: '1.4' }}>{step}</span>
+                        </div>
+                      ))}
+                      {smtpConfig.host === 'smtp.zoho.com' && [
+                        'Open Zoho Accounts (accounts.zoho.com).',
+                        'Navigate to "Security" > "App Passwords".',
+                        'Click "Generate New Password".',
+                        'Enter "MailPulse" and copy the key.'
+                      ].map((step, i) => (
+                        <div key={i} style={{ fontSize: '0.85rem', color: '#fff', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                          <span style={{ background: 'var(--primary)', color: '#000', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', flexShrink: 0, fontSize: '0.7rem' }}>{i+1}</span> 
+                          <span style={{ lineHeight: '1.4' }}>{step}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <a 
+                      href={smtpConfig.host === 'smtp.gmail.com' ? "https://myaccount.google.com/apppasswords" : smtpConfig.host === 'smtp-mail.outlook.com' ? "https://account.live.com/proofs/manage/additional" : "https://accounts.zoho.com/u/h#setting/security/apppassword"}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ 
+                        padding: '1.25rem', background: 'var(--primary)', 
+                        border: 'none', borderRadius: '0.25rem', color: '#000', fontWeight: '900', textAlign: 'center', textDecoration: 'none', fontSize: '0.9rem', letterSpacing: '0.05em'
+                      }}
+                    >
+                      OPEN SECURITY SETTINGS
+                    </a>
+                    <button 
+                      onClick={() => setShowInstructions(false)}
+                      style={{ 
+                        padding: '1rem', background: 'rgba(255,255,255,0.05)', 
+                        border: '1px solid var(--border)', borderRadius: '0.25rem', color: '#fff', fontWeight: '800', fontSize: '0.8rem' 
+                      }}
+                    >
+                      ← RETURN TO CONFIGURATION
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
