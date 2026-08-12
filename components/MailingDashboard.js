@@ -455,6 +455,13 @@ export default function MailingDashboard() {
         </div>
       </div>
 
+      <footer style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', fontSize: '0.7rem', color: 'var(--muted)', fontWeight: '600' }}>
+        <span>© {new Date().getFullYear()} MAILPULSE ELITE. ALL RIGHTS RESERVED.</span>
+        <span>
+          DESIGNED & ENGINEERED BY <a href="https://chittortech.online" target="_blank" rel="dofollow" style={{ color: 'var(--primary)', fontWeight: '800', textDecoration: 'underline' }}>CHITTORTECH</a>
+        </span>
+      </footer>
+
       <AnimatePresence>
         {showBranding && (
           <motion.div 
@@ -525,7 +532,7 @@ export default function MailingDashboard() {
                   </div>
 
                   <div style={{ marginTop: '1.5rem', display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-                    <a href="https://www.chittortech.online/" target="_blank" rel="noopener noreferrer" style={{ 
+                    <a href="https://chittortech.online" target="_blank" rel="dofollow" style={{ 
                       textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                       gap: '0.75rem', background: '#fff', color: '#000', padding: '1rem', 
                       borderRadius: '0.25rem', fontWeight: '900', fontSize: '1rem', transition: '0.3s'
